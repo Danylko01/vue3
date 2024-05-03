@@ -30,12 +30,12 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 a {
-  color: #2d374b;
+  color: #9d9d9d;
   text-decoration: none;
 }
 a:hover {
-  color: #cd0200;
-  text-decoration: underline;
+  color: #fff;
+  text-decoration: none;
 }
 em {
   font-style: normal;
