@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: Danylko
  * @Date: 2024-05-02 20:56:10
- * @LastEditTime: 2024-05-06 20:06:05
+ * @LastEditTime: 2024-05-06 20:21:49
 -->
 <script setup>
 import { inject, ref } from 'vue'
@@ -20,7 +20,6 @@ const currentIndex = ref(0)
 const config = inject('variable')
 const prevSlide = () => {
   currentIndex.value = (currentIndex.value - 1 + images.value.length) % images.value.length
-  console.log(currentIndex.value)
 }
 const nextSlide = () => {
   currentIndex.value = (currentIndex.value + 1) % images.value.length
@@ -55,12 +54,14 @@ autoSlide()
         ></span>
       </div>
     </div>
+    <div class="item"></div>
+    <div class="item"></div>
   </div>
 </template>
 <style lang="less" scoped>
 .home {
   margin-top: 70px;
-  height: 100vh;
+  // height: 100vh;
   margin-left: 200px;
   overflow: hidden;
   .item {
