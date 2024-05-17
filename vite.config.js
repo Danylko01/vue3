@@ -30,7 +30,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8080
+   // port: 8080
     // proxy: {
     //   '/api': {
     //     target: 'http://localhost:8080', // 将接口请求代理到 Mock.js 服务的地址
