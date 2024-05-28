@@ -58,8 +58,6 @@ const ev = new EventEmitter()
 // 添加请求拦截器
 request.interceptors.request.use(
   async (config) => {
-    console.log('loaction', location)
-    console.log('config', config)
     let api = location.pathname
     // 生成请求Key
     let reqKey = generateReqKey(config, api)

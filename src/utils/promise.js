@@ -1,5 +1,5 @@
 /*
- * @Description:
+ * @Description: 手写promise
  * @Author: Danylko
  * @Date: 2024-05-28 08:10:11
  * @LastEditTime: 2024-05-28 08:13:02
