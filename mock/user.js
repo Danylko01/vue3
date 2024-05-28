@@ -2,7 +2,7 @@
  * @Description: mockjs
  * @Author: Danylko
  * @Date: 2024-05-09 07:42:58
- * @LastEditTime: 2024-05-10 08:13:22
+ * @LastEditTime: 2024-05-13 19:40:02
  */
 // 引入 Mock.js
 import Mock from 'mockjs'
@@ -24,9 +24,7 @@ Mock.mock(RegExp('/api/data.*'), 'get', (options) => {
 
 // 模拟 POST 请求
 Mock.mock('/api/login', 'post', (options) => {
-  console.log(options)
   const { username, password } = JSON.parse(options.body)
-  console.log('username', username)
   if (username === 'admin' && password === '123456') {
     return {
       code: 200,

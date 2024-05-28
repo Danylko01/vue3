@@ -2,7 +2,7 @@
  * @Description: axios封装
  * @Author: Danylko
  * @Date: 2024-05-03 00:16:11
- * @LastEditTime: 2024-05-10 07:06:45
+ * @LastEditTime: 2024-05-28 07:38:42
  */
 
 import axios from 'axios'
@@ -10,36 +10,141 @@ import axios from 'axios'
 // const BASE_URL = 'https://127.0.0.1:8080'
 
 const request = axios.create({
-  // baseURL: BASE_URL,
-  timeout: 10000, // 设置请求超时时间为10秒
-  headers: {
-    'Content-Type': 'application/json' // 设置默认的 Content-Type
-  }
+  baseURL: '/api/',
+  timeout: 10000 // 设置请求超时时间为10秒
 })
 
-// 请求拦截器
+// 发布订阅
+class EventEmitter {
+  constructor() {
+    this.event = {}
+  }
+  on(type, cbres, cbrej) {
+    if (!this.event[type]) {
+      this.event[type] = [[cbres, cbrej]]
+    } else {
+      this.event[type].push([cbres, cbrej])
+    }
+  }
+
+  emit(type, res, ansType) {
+    if (!this.event[type]) return
+    else {
+      this.event[type].forEach((cbArr) => {
+        if (ansType === 'resolve') {
+          cbArr[0](res)
+        } else {
+          cbArr[1](res)
+        }
+      })
+    }
+  }
+}
+// 根据请求生成对应的key
+function generateReqKey(config, api) {
+  const { method, url, params, data } = config
+  return [method, url, JSON.stringify(params), JSON.stringify(data), api].join('&')
+}
+
+function isFileUploadApi(config) {
+  return Object.prototype.toString.call(config.data) === '[object FormData]'
+}
+
+// 存储已发送但未响应的请求
+const pendingRequest = new Set()
+// 发布订阅容器
+const ev = new EventEmitter()
+
+// 添加请求拦截器
 request.interceptors.request.use(
-  (config) => {
-    // 在请求发送之前，添加Bearer Token到Authorization头中
-    // config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+  async (config) => {
+    console.log('loaction', location)
+    console.log('config', config)
+    let api = location.pathname
+    // 生成请求Key
+    let reqKey = generateReqKey(config, api)
+    if (!isFileUploadApi(config) && pendingRequest.has(reqKey)) {
+      // 如果是相同请求,在这里将请求挂起，通过发布订阅来为该请求返回结果
+      // 这里需注意，拿到结果后，无论成功与否，都需要return Promise.reject()来中断这次请求，否则请求会正常发送至服务器
+      let res = null
+      try {
+        // 接口成功响应
+        res = await new Promise((resolve, reject) => {
+          ev.on(reqKey, resolve, reject)
+        })
+        return Promise.reject({
+          type: 'limiteResSuccess',
+          val: res
+        })
+      } catch (limitFunErr) {
+        // 接口报错
+        return Promise.reject({
+          type: 'limiteResError',
+          val: limitFunErr
+        })
+      }
+    } else {
+      // 将请求的key保存在config
+      config.pendKey = reqKey
+      pendingRequest.add(reqKey)
+    }
+
     return config
   },
-  (error) => {
-    // 对请求错误做些什么
+  function (error) {
     return Promise.reject(error)
   }
 )
 
-// 响应拦截器
+// 添加响应拦截器
 request.interceptors.response.use(
-  (response) => {
-    // 对响应数据做些什么
+  function (response) {
+    // 将拿到的结果发布给其他相同的接口
+    handleSuccessResponse_limit(response)
     return response
   },
-  (error) => {
-    // 对响应错误做些什么
-    return Promise.reject(error)
+  function (error) {
+    return handleErrorResponse_limit(error)
   }
 )
+
+// 接口响应成功
+function handleSuccessResponse_limit(response) {
+  const reqKey = response.config.pendKey
+  if (pendingRequest.has(reqKey)) {
+    let x = null
+    try {
+      x = JSON.parse(JSON.stringify(response))
+    } catch (e) {
+      x = response
+    }
+    pendingRequest.delete(reqKey)
+    ev.emit(reqKey, x, 'resolve')
+    delete ev.event[reqKey]
+  }
+}
+
+// 接口走失败响应
+function handleErrorResponse_limit(error) {
+  if (error.type && error.type === 'limiteResSuccess') {
+    return Promise.resolve(error.val)
+  } else if (error.type && error.type === 'limiteResError') {
+    return Promise.reject(error.val)
+  } else {
+    const reqKey = error.config.pendKey
+    if (pendingRequest.has(reqKey)) {
+      let x = null
+      try {
+        x = JSON.parse(JSON.stringify(error))
+      } catch (e) {
+        x = error
+      }
+      pendingRequest.delete(reqKey)
+      ev.emit(reqKey, x, 'reject')
+      delete ev.event[reqKey]
+    }
+  }
+  return Promise.reject(error)
+}
 
 export default request

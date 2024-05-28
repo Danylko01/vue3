@@ -2,7 +2,7 @@
  * @Description:
  * @Author: Danylko
  * @Date: 2024-05-02 11:03:36
- * @LastEditTime: 2024-05-10 06:58:11
+ * @LastEditTime: 2024-05-13 18:58:02
  */
 import { fileURLToPath, URL } from 'node:url'
 
@@ -30,13 +30,13 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8080
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:8080', // 将接口请求代理到 Mock.js 服务的地址
-    //     changeOrigin: true,
-    //     rewrite: (path) => path.replace(/^\/api/, '') // 去掉请求路径中的 '/api' 前缀
-    //   }
-    // }
+    port: 8080,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // 将接口请求代理到 Mock.js 服务的地址
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // 去掉请求路径中的 '/api' 前缀
+      }
+    }
   }
 })

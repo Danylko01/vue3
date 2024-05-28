@@ -2,25 +2,28 @@
  * @Description: mockjs测试
  * @Author: Danylko
  * @Date: 2024-05-09 08:08:02
- * @LastEditTime: 2024-05-10 08:14:43
+ * @LastEditTime: 2024-05-24 07:53:20
 -->
 <script setup>
-import { getData, postData } from './service'
+import { getTest } from './service'
 defineOptions({
   name: 'MockPage'
 })
+// const handleTest = async () => {
+//   const params = {
+//     name: 'ddd'
+//   }
+//   const data = {
+//     username: 'admin',
+//     password: '123456'
+//   }
+//   const res = await getData(params)
+//   const re = await postData(data)
+//   console.log('re', res, re)
+// }
 const handleTest = async () => {
-  const params = {
-    name: 'ddd'
-  }
-  const data = {
-    username: 'admin',
-    password: '1234567'
-  }
-  const res = await getData(params)
-  console.log('res', res)
-  const re = await postData(data)
-  console.log('re', re)
+  const res = await getTest();
+  console.log("test", res)
 }
 </script>
 <template>

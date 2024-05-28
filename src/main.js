@@ -11,7 +11,7 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import '@/assets/styles/reset.css'
-import '../mock/user'
+// import '../mock/user'
 
 axios
   .get('/config.json')
