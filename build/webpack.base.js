@@ -5,9 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const isDev = process.env.NODE_ENV === 'development'; // 是否是开发模式
-
 module.exports = {
-	entry: path.join(__dirname, '../src/main.js'), // 入口文件
+	entry: path.join(__dirname, '../src/main.ts'), // 入口文件
 	// 打包文件出口
 	output: {
 		filename: 'static/js/[name].[chunkhash:8].js', // 每个输出js的名称
